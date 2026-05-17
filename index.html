@@ -182,15 +182,14 @@ p{margin:0;color:var(--ink-2)}
   position:relative;
   display:flex;
   flex-direction:column;
-  padding:24px 0 32px;
+  padding:24px 0 0;
 }
 
 .hero__stack{
-  display:grid;
-  grid-template-rows:auto 1fr;
-  height:100%;
-  gap:20px;
-  align-items:start;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  align-items:stretch;
 }
 
 .hero__copy{
@@ -232,38 +231,42 @@ p{margin:0;color:var(--ink-2)}
 .hero__visual{
   position:relative;
   width:100%;
-  margin-top:20px;
-  margin-bottom:-32px;
-  padding:0 32px;
+  margin-top:-40px;
+  margin-bottom:-80px;
+  padding:0 16px;
   display:flex;
   justify-content:center;
   align-items:center;
 }
+.hero__image-frame{
+  width:min(96%, 1180px);
+  aspect-ratio: 16 / 9;
+  overflow:hidden;
+  display:flex;
+  justify-content:center;
+}
 .hero__image{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 50%;
   display:block;
-  width:auto;
-  height:auto;
-  max-width:min(78%, 780px);
-  max-height:520px;
-  object-fit:contain;
   background:transparent;
   filter:brightness(1.04) contrast(1.02);
-  -webkit-mask-image: radial-gradient(ellipse 78% 82% at center 46%, #000 62%, transparent 95%);
-          mask-image: radial-gradient(ellipse 78% 82% at center 46%, #000 62%, transparent 95%);
 }
 .hero__progress{display:none}
 
 @media (max-width:1080px){
-  .hero__pin{padding:32px 0 64px}
+  .hero__pin{padding:32px 0 0}
   .hero h1{font-size:clamp(40px,7vw,60px)}
-  .hero__visual{margin-top:40px}
-  .hero__image{max-width:88%}
+  .hero__visual{margin-top:-20px;margin-bottom:-40px}
+  .hero__image{max-width:96%;max-height:600px}
 }
 @media (max-width:820px){
-  .hero__pin{padding:24px 0 48px}
-  .hero__stack{gap:28px}
-  .hero__visual{margin-top:24px;padding:0 16px}
-  .hero__image{max-width:100%;max-height:55vh}
+  .hero__pin{padding:24px 0 0}
+  .hero__stack{gap:18px}
+  .hero__visual{margin-top:0;margin-bottom:-16px;padding:0 12px}
+  .hero__image{max-width:100%;max-height:64vh}
 }
 
 /* ────────── Logo strip (black) ────────── */
@@ -616,25 +619,41 @@ p{margin:0;color:var(--ink-2)}
 .teardown-cta-wrap{
   position:relative;
   border-radius:26px;
-  padding:2px;
-  background:linear-gradient(120deg, var(--develop) 0%, var(--preview) 40%, var(--ship) 70%, var(--develop) 100%);
-  background-size:280% 280%;
-  animation:teardownGradient 14s ease-in-out infinite;
+  padding:1.5px;
+  background:linear-gradient(120deg,
+    #0a72ef 0%,
+    #6d28d9 16%,
+    #c026d3 30%,
+    #de1d8d 44%,
+    #f43f5e 58%,
+    #ff5b4f 72%,
+    #fb923c 86%,
+    #0a72ef 100%);
+  background-size:320% 320%;
+  animation:teardownGradient 18s ease-in-out infinite;
   isolation:isolate;
 }
 .teardown-cta-glow{
-  position:absolute;inset:-28px;z-index:-1;
-  border-radius:54px;pointer-events:none;
-  background:linear-gradient(120deg, var(--develop) 0%, var(--preview) 50%, var(--ship) 100%);
-  background-size:280% 280%;
-  filter:blur(48px);
-  opacity:.22;
-  animation:teardownGradient 14s ease-in-out infinite;
+  position:absolute;inset:-36px;z-index:-1;
+  border-radius:60px;pointer-events:none;
+  background:
+    radial-gradient(48% 60% at 18% 30%, rgba(10,114,239,.55), transparent 65%),
+    radial-gradient(45% 55% at 82% 26%, rgba(192,38,211,.50), transparent 65%),
+    radial-gradient(50% 60% at 78% 78%, rgba(255,91,79,.55), transparent 65%),
+    radial-gradient(48% 56% at 22% 78%, rgba(244,63,94,.48), transparent 65%);
+  background-size:160% 160%;
+  filter:blur(54px);
+  opacity:.30;
+  animation:teardownGlow 20s ease-in-out infinite;
 }
 @keyframes teardownGradient{
   0%   {background-position:0% 50%}
   50%  {background-position:100% 50%}
   100% {background-position:0% 50%}
+}
+@keyframes teardownGlow{
+  0%,100% {background-position:0% 0%, 100% 0%, 100% 100%, 0% 100%}
+  50%     {background-position:100% 100%, 0% 100%, 0% 0%, 100% 0%}
 }
 @media (prefers-reduced-motion: reduce){
   .teardown-cta-wrap, .teardown-cta-glow{animation:none}
@@ -798,6 +817,28 @@ p{margin:0;color:var(--ink-2)}
   display:inline-flex;align-items:center;justify-content:center;
   margin-bottom:14px;
 }
+.nl-loader{
+  position:relative;width:72px;height:72px;margin:0 auto 18px;
+}
+.nl-loader__ring{
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,#0a72ef,#6d28d9,#c026d3,#de1d8d,#f43f5e,#ff5b4f,#fb923c,#0a72ef);
+  -webkit-mask:radial-gradient(closest-side,transparent 62%,#000 64%);
+          mask:radial-gradient(closest-side,transparent 62%,#000 64%);
+  animation:nl-spin 1.2s linear infinite;
+}
+.nl-loader__glyph{
+  position:absolute;inset:0;margin:auto;width:26px;height:26px;
+  animation:nl-pulse 1.8s ease-in-out infinite;
+}
+@keyframes nl-spin{to{transform:rotate(360deg)}}
+@keyframes nl-pulse{
+  0%,100%{transform:scale(1);opacity:.92}
+  50%{transform:scale(1.08);opacity:1}
+}
+@media (prefers-reduced-motion: reduce){
+  .nl-loader__ring,.nl-loader__glyph{animation:none}
+}
 .lead-success__title{
   font-size:22px;line-height:1.2;letter-spacing:-0.025em;
   font-weight:600;margin:0 0 6px;
@@ -854,7 +895,9 @@ p{margin:0;color:var(--ink-2)}
       </div>
 
       <div class="hero__visual" aria-label="Northline product preview">
-        <img class="hero__image" src="assets/hero-laptop-poster.jpg" alt="MacBook displaying a Northline-built product dashboard" width="1248" height="1664" loading="eager" decoding="async" />
+        <div class="hero__image-frame">
+          <img class="hero__image" src="assets/hero-laptop-poster.jpg" alt="MacBook displaying a Northline-built product dashboard" width="1248" height="1664" loading="eager" decoding="async" />
+        </div>
       </div>
     </div>
   </div>
@@ -1490,11 +1533,22 @@ window.addEventListener("northline:lead-success", async (e) => {
   const d = e.detail || {};
   if (!d.email) return;
 
-  // Update the success step copy to a brief "opening dashboard" state
+  // Update the success step copy + swap the checkmark for the branded loader
   const subEl = document.getElementById("leadSuccessSub");
   const titleEl = document.querySelector('.lead-step[data-step="done"] .lead-success__title');
+  const iconEl = document.querySelector('.lead-step[data-step="done"] .lead-success__icon');
   if (titleEl) titleEl.textContent = "Spinning up your dashboard…";
   if (subEl) subEl.innerHTML = "Logging you in and analysing your site. Hang tight — this takes a second.";
+  if (iconEl) {
+    iconEl.outerHTML = `
+      <div class="nl-loader" aria-hidden="true">
+        <div class="nl-loader__ring"></div>
+        <svg class="nl-loader__glyph" viewBox="0 0 24 24" fill="none">
+          <path d="M3 20 L12 4 L21 20 Z" fill="#171717"/>
+          <path d="M12 4 L21 20" stroke="#fff" stroke-width="1.5"/>
+        </svg>
+      </div>`;
+  }
 
   try {
     await bootstrapAndSignIn({
@@ -1505,6 +1559,10 @@ window.addEventListener("northline:lead-success", async (e) => {
       income_range: d.income_range,
       biggest_problem: d.biggest_problem
     });
+    if (d.password) {
+      const { error: pwErr } = await supabase.auth.updateUser({ password: d.password });
+      if (pwErr) console.warn("Password set failed:", pwErr);
+    }
     setTimeout(() => { location.href = "/dashboard"; }, 1200);
   } catch (err) {
     console.error("Auth bootstrap failed:", err);
@@ -1513,21 +1571,95 @@ window.addEventListener("northline:lead-success", async (e) => {
   }
 });
 
-// Returning users: nav "Log in" → email prompt → instant sign-in
+// Returning users: nav "Log in" → email + password
 async function promptSignin() {
-  const email = window.prompt("Enter your email to open your dashboard:");
-  if (!email) return;
-  const e = email.trim().toLowerCase();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) {
-    alert("Please enter a valid email.");
-    return;
-  }
-  try {
-    await bootstrapAndSignIn({ email: e });
+  openLoginModal();
+}
+
+function openLoginModal() {
+  const existing = document.getElementById("loginBackdrop");
+  if (existing) { existing.hidden = false; requestAnimationFrame(() => existing.classList.add("is-open")); return; }
+  const wrap = document.createElement("div");
+  wrap.id = "loginBackdrop";
+  wrap.className = "lead-backdrop";
+  wrap.setAttribute("role", "dialog");
+  wrap.setAttribute("aria-modal", "true");
+  wrap.innerHTML = `
+    <div class="lead-modal" style="max-width:440px">
+      <div class="lead-modal__top">
+        <span class="lead-modal__brand">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 20 L12 4 L21 20 Z" fill="#171717"/>
+            <path d="M12 4 L21 20" stroke="#fff" stroke-width="1.5"/>
+          </svg>
+          Log in
+        </span>
+        <button class="lead-modal__close" type="button" data-login-close aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="lead-modal__body">
+        <div class="lead-step is-active">
+          <h3 class="lead-step__title">Welcome back.</h3>
+          <p class="lead-step__sub">Log in to open your dashboard.</p>
+          <input class="lead-input" id="loginEmail" type="email" autocomplete="email" placeholder="you@company.com" />
+          <input class="lead-input" id="loginPassword" type="password" autocomplete="current-password" placeholder="Password" style="margin-top:10px" />
+          <div class="lead-error" data-error-for="login" style="margin-top:8px"></div>
+          <div class="lead-actions" style="margin-top:18px">
+            <button class="lead-back" type="button" data-login-magic>Email me a magic link instead</button>
+            <button class="btn btn--primary" type="button" id="loginGo">Log in →</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(wrap);
+  requestAnimationFrame(() => wrap.classList.add("is-open"));
+  document.documentElement.style.overflow = "hidden";
+
+  const closeIt = () => {
+    wrap.classList.remove("is-open");
+    document.documentElement.style.overflow = "";
+    setTimeout(() => wrap.remove(), 250);
+  };
+
+  const showErr = (msg) => {
+    const el = wrap.querySelector('.lead-error[data-error-for="login"]');
+    el.textContent = msg;
+    el.classList.add("is-on");
+  };
+
+  wrap.addEventListener("click", (e) => {
+    if (e.target === wrap || e.target.closest("[data-login-close]")) closeIt();
+  });
+
+  wrap.querySelector("#loginGo").addEventListener("click", async () => {
+    const email = wrap.querySelector("#loginEmail").value.trim().toLowerCase();
+    const pw = wrap.querySelector("#loginPassword").value;
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showErr("Please enter a valid email."); return; }
+    if (!pw || pw.length < 8) { showErr("Password must be at least 8 characters."); return; }
+    const btn = wrap.querySelector("#loginGo");
+    btn.disabled = true; btn.textContent = "Signing in…";
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pw });
+    if (error) {
+      btn.disabled = false; btn.textContent = "Log in →";
+      showErr(error.message || "Couldn't sign in.");
+      return;
+    }
     location.href = "/dashboard";
-  } catch (err) {
-    alert(`Couldn't sign in: ${err.message || err}`);
-  }
+  });
+
+  wrap.querySelector("[data-login-magic]").addEventListener("click", async () => {
+    const email = wrap.querySelector("#loginEmail").value.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showErr("Add your email first."); return; }
+    try {
+      await bootstrapAndSignIn({ email });
+      location.href = "/dashboard";
+    } catch (err) {
+      showErr(err.message || "Couldn't sign in.");
+    }
+  });
+
+  setTimeout(() => wrap.querySelector("#loginEmail").focus(), 60);
 }
 
 document.getElementById("navSignin")?.addEventListener("click", (e) => {
@@ -1550,7 +1682,7 @@ document.getElementById("navSignin")?.addEventListener("click", (e) => {
         Free teardown
       </span>
       <div class="lead-modal__progress" id="leadProgress" aria-hidden="true">
-        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span>
       </div>
       <button class="lead-modal__close" id="leadClose" type="button" aria-label="Close">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -1560,7 +1692,7 @@ document.getElementById("navSignin")?.addEventListener("click", (e) => {
     <form class="lead-modal__body" id="leadForm" novalidate>
       <!-- Step 1: Name -->
       <div class="lead-step is-active" data-step="1">
-        <div class="lead-step__eyebrow">Step 1 of 5</div>
+        <div class="lead-step__eyebrow">Step 1 of 6</div>
         <h3 class="lead-step__title" id="leadModalTitle">What's your name?</h3>
         <p class="lead-step__sub">So we can address your teardown to a real person.</p>
         <input class="lead-input" name="name" id="leadName" type="text" autocomplete="given-name" placeholder="Jack" required aria-required="true" />
@@ -1573,7 +1705,7 @@ document.getElementById("navSignin")?.addEventListener("click", (e) => {
 
       <!-- Step 2: Email -->
       <div class="lead-step" data-step="2">
-        <div class="lead-step__eyebrow">Step 2 of 5</div>
+        <div class="lead-step__eyebrow">Step 2 of 6</div>
         <h3 class="lead-step__title">Where should we send it?</h3>
         <p class="lead-step__sub">Your teardown lands here within 48h. No spam, no list.</p>
         <input class="lead-input" name="email" id="leadEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" required aria-required="true" />
@@ -1586,7 +1718,7 @@ document.getElementById("navSignin")?.addEventListener("click", (e) => {
 
       <!-- Step 3: Website -->
       <div class="lead-step" data-step="3">
-        <div class="lead-step__eyebrow">Step 3 of 5</div>
+        <div class="lead-step__eyebrow">Step 3 of 6</div>
         <h3 class="lead-step__title">Which site should we tear down?</h3>
         <p class="lead-step__sub">Paste the live URL — we'll record a 5-min Loom on UX, speed, and conversion.</p>
         <input class="lead-input" name="website" id="leadWebsite" type="url" autocomplete="url" inputmode="url" placeholder="https://your-site.com" required aria-required="true" />
@@ -1599,7 +1731,7 @@ document.getElementById("navSignin")?.addEventListener("click", (e) => {
 
       <!-- Step 4: Income -->
       <div class="lead-step" data-step="4">
-        <div class="lead-step__eyebrow">Step 4 of 5</div>
+        <div class="lead-step__eyebrow">Step 4 of 6</div>
         <h3 class="lead-step__title">Roughly where's the business at?</h3>
         <p class="lead-step__sub">Helps us tailor the teardown to your stage. Honest answers only.</p>
         <div class="lead-options" role="radiogroup" aria-label="Monthly revenue range">
@@ -1633,18 +1765,31 @@ document.getElementById("navSignin")?.addEventListener("click", (e) => {
 
       <!-- Step 5: Biggest problem -->
       <div class="lead-step" data-step="5">
-        <div class="lead-step__eyebrow">Step 5 of 5</div>
+        <div class="lead-step__eyebrow">Step 5 of 6</div>
         <h3 class="lead-step__title">What's the biggest thing slowing you down right now?</h3>
         <p class="lead-step__sub">A sentence is fine. The more specific, the sharper the teardown.</p>
         <textarea class="lead-textarea" name="biggest_problem" id="leadProblem" placeholder="e.g. Lots of traffic, almost no leads — homepage feels generic." required aria-required="true"></textarea>
         <div class="lead-error" data-error-for="biggest_problem">Add one short sentence.</div>
         <div class="lead-actions">
           <button class="lead-back" type="button" data-lead-back>← Back</button>
-          <button class="btn btn--primary" type="submit" id="leadSubmit">Claim my teardown <span class="arrow" aria-hidden="true">→</span></button>
+          <button class="btn btn--primary" type="button" data-lead-next>Continue <span class="arrow" aria-hidden="true">→</span></button>
+        </div>
+      </div>
+
+      <!-- Step 6: Password (account creation) -->
+      <div class="lead-step" data-step="6">
+        <div class="lead-step__eyebrow">Step 6 of 6</div>
+        <h3 class="lead-step__title">Create a password.</h3>
+        <p class="lead-step__sub">So you can log back into your dashboard anytime. Minimum 8 characters.</p>
+        <input class="lead-input" name="password" id="leadPassword" type="password" autocomplete="new-password" placeholder="••••••••" required aria-required="true" minlength="8" />
+        <div class="lead-error" data-error-for="password">Use at least 8 characters.</div>
+        <div class="lead-actions">
+          <button class="lead-back" type="button" data-lead-back>← Back</button>
+          <button class="btn btn--primary" type="submit" id="leadSubmit">Create account & claim teardown <span class="arrow" aria-hidden="true">→</span></button>
         </div>
         <div class="lead-footnote">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          We'll only use this to send your teardown.
+          Stored encrypted in Supabase. Never shared.
         </div>
       </div>
 
@@ -1675,36 +1820,22 @@ document.getElementById("navSignin")?.addEventListener("click", (e) => {
   const submitBtn = document.getElementById("leadSubmit");
   const progress = document.getElementById("leadProgress");
   const steps = Array.from(form.querySelectorAll(".lead-step"));
-  const totalSteps = 5;
+  const totalSteps = 6;
 
-  const state = { step: 1, data: { name: "", email: "", website: "", income_range: "", biggest_problem: "" } };
+  const state = { step: 1, data: { name: "", email: "", website: "", income_range: "", biggest_problem: "", password: "" } };
 
   let lastFocus = null;
 
   const fireConfetti = () => {
     if (typeof window.confetti !== "function") return;
-    const colors = ["#0a72ef", "#de1d8d", "#ff5b4f", "#171717", "#ffffff"];
-    const base = { zIndex: 1000, disableForReducedMotion: true };
-    const burst = (originX) => window.confetti({
-      ...base,
-      particleCount: 80,
-      spread: 75,
-      startVelocity: 45,
-      origin: { x: originX, y: 0.65 },
-      colors,
-      scalar: 1.05,
-      ticks: 220
-    });
-    burst(0.2);
-    burst(0.8);
-    setTimeout(() => window.confetti({
-      ...base,
-      particleCount: 60,
-      spread: 110,
-      origin: { x: 0.5, y: 0.5 },
-      colors,
-      ticks: 260
-    }), 180);
+    const colors = ["#0a72ef", "#6d28d9", "#c026d3", "#de1d8d", "#f43f5e", "#ff5b4f", "#fb923c", "#ffffff"];
+    const base = { zIndex: 1000, disableForReducedMotion: true, colors, scalar: 1.05 };
+    const box = modal.getBoundingClientRect();
+    const cx = (box.left + box.width / 2) / window.innerWidth;
+    const cy = (box.top  + box.height / 2) / window.innerHeight;
+    window.confetti({ ...base, particleCount: 90, spread: 360, startVelocity: 35, origin: { x: cx, y: cy }, ticks: 220 });
+    setTimeout(() => window.confetti({ ...base, particleCount: 60, spread: 360, startVelocity: 24, origin: { x: cx, y: cy }, ticks: 260 }), 160);
+    setTimeout(() => window.confetti({ ...base, particleCount: 40, spread: 360, startVelocity: 18, origin: { x: cx, y: cy }, ticks: 320 }), 340);
   };
 
   const setStep = (n) => {
@@ -1746,7 +1877,7 @@ document.getElementById("navSignin")?.addEventListener("click", (e) => {
       form.querySelectorAll(".lead-option").forEach(o => { o.classList.remove("is-selected"); o.setAttribute("aria-checked","false"); });
       form.querySelectorAll(".lead-error").forEach(e => e.classList.remove("is-on"));
       state.step = 1;
-      state.data = { name: "", email: "", website: "", income_range: "", biggest_problem: "" };
+      state.data = { name: "", email: "", website: "", income_range: "", biggest_problem: "", password: "" };
       setStep(1);
       if (lastFocus && lastFocus.focus) lastFocus.focus();
     }, 280);
@@ -1797,6 +1928,11 @@ document.getElementById("navSignin")?.addEventListener("click", (e) => {
       if (problem.length < 2) { showError("biggest_problem"); return false; }
       state.data.biggest_problem = problem; clearError("biggest_problem"); return true;
     }
+    if (n === 6) {
+      const pw = form.querySelector("#leadPassword").value;
+      if (!pw || pw.length < 8) { showError("password"); return false; }
+      state.data.password = pw; clearError("password"); return true;
+    }
     return true;
   };
 
@@ -1831,13 +1967,14 @@ document.getElementById("navSignin")?.addEventListener("click", (e) => {
       if (!validateStep(state.step)) return;
       setStep(state.step + 1);
     }
+    // step 6: let the native submit fire so the form submit handler runs
   });
 
   // Submit
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!validateStep(5)) return;
-    if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4)) {
+    if (!validateStep(6)) return;
+    if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4) || !validateStep(5)) {
       setStep(state.step);
       return;
     }
@@ -1868,9 +2005,9 @@ document.getElementById("navSignin")?.addEventListener("click", (e) => {
         console.error("Lead submit failed", res.status, data);
         throw new Error(data.error || "Submit failed");
       }
-      // Fire-and-forget: also send a magic link so they can sign in to the dashboard
+      // Hand off to the auth module: instant session via edge fn, then set password
       window.dispatchEvent(new CustomEvent("northline:lead-success", {
-        detail: { ...state.data, email: state.data.email }
+        detail: { ...state.data, email: state.data.email, password: state.data.password }
       }));
       const emailEl = document.getElementById("leadSuccessEmail");
       if (emailEl) emailEl.textContent = state.data.email;

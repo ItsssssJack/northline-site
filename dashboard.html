@@ -256,6 +256,28 @@ img,svg{display:block;max-width:100%}
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* Northline branded loader */
+.nl-loader{position:relative;width:80px;height:80px;margin:0 auto 22px}
+.nl-loader__ring{
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,#0a72ef,#6d28d9,#c026d3,#de1d8d,#f43f5e,#ff5b4f,#fb923c,#0a72ef);
+  -webkit-mask:radial-gradient(closest-side,transparent 62%,#000 64%);
+          mask:radial-gradient(closest-side,transparent 62%,#000 64%);
+  animation:nl-spin 1.2s linear infinite;
+}
+.nl-loader__glyph{
+  position:absolute;inset:0;margin:auto;width:28px;height:28px;
+  animation:nl-pulse 1.8s ease-in-out infinite;
+}
+@keyframes nl-spin{to{transform:rotate(360deg)}}
+@keyframes nl-pulse{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.08);opacity:1}}
+
+.nl-loader--sm{width:22px;height:22px;margin:0}
+.nl-loader--sm .nl-loader__glyph{width:9px;height:9px}
+@media (prefers-reduced-motion: reduce){
+  .nl-loader__ring,.nl-loader__glyph{animation:none}
+}
+
 /* Skeleton */
 .sk{background:linear-gradient(90deg,var(--bg-tint),var(--line),var(--bg-tint));background-size:200% 100%;animation:sk 1.4s ease-in-out infinite;border-radius:6px;color:transparent !important}
 @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -304,8 +326,15 @@ img,svg{display:block;max-width:100%}
 <!-- Loading state -->
 <section class="section" id="loadingView">
   <div class="state">
-    <div class="spinner" aria-hidden="true"></div>
-    <h2 class="state__title">Loading your dashboard…</h2>
+    <div class="nl-loader" aria-hidden="true">
+      <div class="nl-loader__ring"></div>
+      <svg class="nl-loader__glyph" viewBox="0 0 24 24" fill="none">
+        <path d="M3 20 L12 4 L21 20 Z" fill="#171717"/>
+        <path d="M12 4 L21 20" stroke="#fff" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <h2 class="state__title" id="loadingTitle">Spinning up your dashboard…</h2>
+    <p class="state__sub" id="loadingSub">Pulling Lighthouse scores, Core Web Vitals, SEO and security signals from your site.</p>
   </div>
 </section>
 
@@ -354,7 +383,16 @@ img,svg{display:block;max-width:100%}
     </div>
   </div>
 
-  <div class="run-banner" id="runBanner"><span class="dot"></span> Running fresh analysis — this takes 30–45 seconds.</div>
+  <div class="run-banner" id="runBanner">
+    <span class="nl-loader nl-loader--sm" aria-hidden="true">
+      <span class="nl-loader__ring"></span>
+      <svg class="nl-loader__glyph" viewBox="0 0 24 24" fill="none">
+        <path d="M3 20 L12 4 L21 20 Z" fill="#fff"/>
+        <path d="M12 4 L21 20" stroke="#0a0a0a" stroke-width="1.5"/>
+      </svg>
+    </span>
+    Running fresh analysis — this takes 30–45 seconds.
+  </div>
 
   <div class="grid-eyebrow"><span>Lighthouse scores</span><span id="strategyLabel">Mobile</span></div>
   <div class="scores">
