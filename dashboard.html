@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Dashboard — Northline</title>
+<meta name="description" content="Your free 5-min teardown — performance, SEO, security and conversion checks for your site." />
+<meta name="theme-color" content="#ffffff" />
+<meta name="robots" content="noindex,nofollow" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#fff; --bg-soft:#fafafa; --bg-tint:#f5f5f5;
+  --ink:#171717; --ink-2:#4d4d4d; --ink-3:#666; --ink-4:#808080; --ink-5:#a3a3a3;
+  --line:#ebebeb; --ring:rgba(0,0,0,0.08);
+  --develop:#0a72ef; --preview:#de1d8d; --ship:#ff5b4f;
+  --good:#0a8b3e; --warn:#c97c00; --bad:#c11b1b;
+  --good-soft:#e9f7ef; --warn-soft:#fef4e2; --bad-soft:#fbe9e9;
+  --radius-4:8px; --radius-5:12px; --radius-6:16px; --radius-pill:9999px;
+  --container:1200px; --gutter:24px;
+}
+*{box-sizing:border-box} html,body{margin:0;padding:0}
+body{
+  font-family:"Geist", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-feature-settings:"liga" 1, "calt" 1;
+  background:var(--bg-soft); color:var(--ink);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  font-size:15px; line-height:1.5;
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img,svg{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--develop);outline-offset:2px;border-radius:4px}
+.mono{font-family:"Geist Mono",ui-monospace,Menlo,monospace}
+
+.container{max-width:var(--container);margin:0 auto;padding:0 var(--gutter)}
+
+/* Top nav */
+.nav{
+  position:sticky;top:0;z-index:10;
+  background:rgba(255,255,255,0.92);backdrop-filter:saturate(180%) blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.nav__row{
+  display:flex;align-items:center;gap:16px;
+  height:60px;
+}
+.nav__brand{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:15px;letter-spacing:-0.01em}
+.nav__brand svg{width:18px;height:18px}
+.nav__divider{height:18px;width:1px;background:var(--line)}
+.nav__title{
+  font-family:"Geist Mono",ui-monospace,Menlo,monospace;
+  font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-3);
+}
+.nav__right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.nav__email{font-size:13px;color:var(--ink-3)}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  height:36px;padding:0 14px;
+  border-radius:8px;
+  font-size:13px;font-weight:500;line-height:1;
+  transition:background .15s ease, color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.btn--primary{background:var(--ink);color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset}
+.btn--primary:hover{background:#000}
+.btn--primary:disabled{opacity:.5;cursor:not-allowed}
+.btn--ghost{background:#fff;color:var(--ink);box-shadow:0 0 0 1px var(--ring)}
+.btn--ghost:hover{background:var(--bg-tint)}
+.btn--lg{height:44px;padding:0 18px;font-size:14px}
+.arrow{display:inline-block;transform:translateY(-0.5px)}
+
+/* Page hero */
+.page-hero{padding:40px 0 16px}
+.page-hero__row{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;
+}
+.page-hero__copy h1{
+  font-size:clamp(28px,3.4vw,40px);
+  line-height:1.05;letter-spacing:-0.035em;
+  margin:0 0 8px;font-weight:600;
+}
+.page-hero__copy .sub{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-size:14px;color:var(--ink-3);
+}
+.page-hero__copy .sub .pill{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
+  font-family:"Geist Mono",ui-monospace,Menlo,monospace;font-size:11px;
+  background:#fff;border:1px solid var(--line);color:var(--ink-2);
+}
+.page-hero__url{font-weight:500;color:var(--ink)}
+.page-hero__actions{display:flex;align-items:center;gap:8px}
+
+/* Tabs */
+.tabs{
+  display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:3px;
+  box-shadow:0 1px 2px rgba(0,0,0,0.02);
+}
+.tab{
+  font-size:13px;font-weight:500;color:var(--ink-3);
+  padding:6px 14px;border-radius:7px;line-height:1;height:30px;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:background .15s ease, color .15s ease;
+}
+.tab svg{width:13px;height:13px}
+.tab.is-active{background:var(--ink);color:#fff}
+.tab:not(.is-active):hover{color:var(--ink);background:var(--bg-tint)}
+
+/* Cards */
+.section{padding:8px 0 56px}
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius-6);
+  box-shadow:0 1px 2px rgba(0,0,0,0.02);
+}
+.card__head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:18px 22px;border-bottom:1px solid var(--line);
+}
+.card__title{font-size:15px;font-weight:600;letter-spacing:-0.01em;margin:0;display:flex;align-items:center;gap:8px}
+.card__title svg{width:15px;height:15px;color:var(--ink-3)}
+.card__sub{font-size:12px;color:var(--ink-4)}
+.card__body{padding:22px}
+
+.grid-eyebrow{
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:"Geist Mono",ui-monospace,Menlo,monospace;font-size:11px;
+  text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-4);
+  margin:24px 0 10px;
+}
+
+/* Score tiles */
+.scores{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media (max-width:880px){.scores{grid-template-columns:repeat(2,1fr)}}
+.score-tile{
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:22px;border-radius:var(--radius-6);
+  background:#fff;border:1px solid var(--line);
+  min-height:170px;position:relative;overflow:hidden;
+}
+.score-tile__label{font-size:12px;letter-spacing:0.04em;color:var(--ink-3);text-transform:uppercase;font-family:"Geist Mono",ui-monospace,Menlo,monospace}
+.score-tile__value{font-size:56px;line-height:1;font-weight:600;letter-spacing:-0.035em}
+.score-tile__value .unit{font-size:18px;color:var(--ink-4);margin-left:4px;font-weight:500;letter-spacing:0}
+.score-tile__bar{
+  position:relative;height:6px;background:var(--bg-tint);border-radius:99px;overflow:hidden;
+}
+.score-tile__bar span{position:absolute;left:0;top:0;bottom:0;border-radius:99px;transition:width .6s cubic-bezier(.2,.7,.2,1)}
+.score-tile.good .score-tile__value{color:var(--good)}
+.score-tile.good .score-tile__bar span{background:var(--good)}
+.score-tile.warn .score-tile__value{color:var(--warn)}
+.score-tile.warn .score-tile__bar span{background:var(--warn)}
+.score-tile.bad .score-tile__value{color:var(--bad)}
+.score-tile.bad .score-tile__bar span{background:var(--bad)}
+.score-tile.empty .score-tile__value{color:var(--ink-5)}
+.score-tile.empty .score-tile__bar span{background:var(--ink-5)}
+
+/* Vitals strip */
+.vitals{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:10px}
+@media (max-width:1080px){.vitals{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:520px){.vitals{grid-template-columns:repeat(2,1fr)}}
+.vital{
+  padding:14px 16px;border-radius:12px;
+  background:#fff;border:1px solid var(--line);
+}
+.vital__label{font-size:11px;color:var(--ink-4);font-family:"Geist Mono",ui-monospace,Menlo,monospace;text-transform:uppercase;letter-spacing:0.06em}
+.vital__value{font-size:22px;font-weight:600;letter-spacing:-0.02em;margin-top:4px}
+.vital__hint{font-size:11px;color:var(--ink-4);margin-top:2px}
+.vital.good .vital__value{color:var(--good)}
+.vital.warn .vital__value{color:var(--warn)}
+.vital.bad .vital__value{color:var(--bad)}
+
+/* Two-column row */
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:980px){.row-2{grid-template-columns:1fr}}
+
+/* Meta SEO list */
+.meta-list{display:flex;flex-direction:column;gap:14px}
+.meta-row{display:flex;flex-direction:column;gap:4px}
+.meta-row__label{
+  font-family:"Geist Mono",ui-monospace,Menlo,monospace;
+  font-size:11px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.06em;
+  display:flex;align-items:center;gap:8px;
+}
+.meta-row__label .len{color:var(--ink-3);text-transform:none;letter-spacing:0}
+.meta-row__value{font-size:14px;color:var(--ink);line-height:1.45;word-break:break-word}
+.meta-row__value.empty{color:var(--ink-5);font-style:italic}
+.meta-row__value code{font-family:"Geist Mono",ui-monospace,Menlo,monospace;font-size:13px;background:var(--bg-tint);padding:2px 6px;border-radius:4px}
+
+.chiprow{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 10px;border-radius:999px;
+  font-size:12px;font-weight:500;
+  background:#fff;border:1px solid var(--line);color:var(--ink-2);
+}
+.chip.good{background:var(--good-soft);border-color:transparent;color:var(--good)}
+.chip.warn{background:var(--warn-soft);border-color:transparent;color:var(--warn)}
+.chip.bad{background:var(--bad-soft);border-color:transparent;color:var(--bad)}
+.chip svg{width:11px;height:11px}
+
+/* OG preview card */
+.og-preview{
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;
+}
+.og-preview__img{
+  width:100%;aspect-ratio:1.91/1;background:var(--bg-tint);
+  background-size:cover;background-position:center;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ink-5);font-size:12px;font-family:"Geist Mono",ui-monospace,Menlo,monospace;
+}
+.og-preview__body{padding:12px 14px;display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line)}
+.og-preview__url{font-size:11px;color:var(--ink-4);text-transform:uppercase;letter-spacing:0.04em}
+.og-preview__title{font-size:14px;font-weight:600;line-height:1.3;color:var(--ink)}
+.og-preview__desc{font-size:13px;color:var(--ink-3);line-height:1.4}
+
+/* Trust checks */
+.trust-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (max-width:520px){.trust-grid{grid-template-columns:1fr}}
+.trust-item{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;
+}
+.trust-item__label{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500}
+.trust-item__label .ico{
+  width:24px;height:24px;border-radius:6px;background:var(--bg-tint);
+  display:inline-flex;align-items:center;justify-content:center;color:var(--ink-3);
+}
+.trust-item__label .ico svg{width:13px;height:13px}
+.trust-item__val{font-family:"Geist Mono",ui-monospace,Menlo,monospace;font-size:12px;color:var(--ink-3)}
+
+/* History */
+.history{display:flex;flex-direction:column;gap:8px}
+.history-row{
+  display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;
+  padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;
+  font-size:13px;
+}
+.history-row__date{color:var(--ink-3);font-family:"Geist Mono",ui-monospace,Menlo,monospace}
+.history-row__url{color:var(--ink);max-width:60ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-row__score{font-weight:600}
+
+/* Empty / loading / error states */
+.state{
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  padding:80px 24px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-6);
+}
+.state__title{font-size:24px;font-weight:600;letter-spacing:-0.025em;margin:0 0 8px}
+.state__sub{color:var(--ink-3);max-width:48ch;margin:0 0 20px}
+.spinner{
+  width:36px;height:36px;border-radius:50%;
+  border:3px solid var(--line);border-top-color:var(--ink);
+  animation:spin .9s linear infinite;margin-bottom:18px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Skeleton */
+.sk{background:linear-gradient(90deg,var(--bg-tint),var(--line),var(--bg-tint));background-size:200% 100%;animation:sk 1.4s ease-in-out infinite;border-radius:6px;color:transparent !important}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* Run banner during re-analysis */
+.run-banner{
+  display:none;align-items:center;gap:12px;
+  padding:12px 16px;margin-bottom:16px;
+  background:#0a0a0a;color:#fff;border-radius:12px;
+  font-size:13px;
+}
+.run-banner.on{display:flex}
+.run-banner .dot{width:8px;height:8px;border-radius:50%;background:#27c93f;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:#0a0a0a;color:#fff;padding:10px 16px;border-radius:99px;
+  font-size:13px;z-index:1000;opacity:0;transition:opacity .2s ease;pointer-events:none;
+}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="container nav__row">
+    <a class="nav__brand" href="/">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M3 20 L12 4 L21 20 Z" fill="#171717"/>
+        <path d="M12 4 L21 20" stroke="#fff" stroke-width="1.5"/>
+      </svg>
+      Northline
+    </a>
+    <span class="nav__divider" aria-hidden="true"></span>
+    <span class="nav__title">Dashboard</span>
+    <div class="nav__right">
+      <span class="nav__email" id="navEmail"></span>
+      <button class="btn btn--ghost" id="signOut" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+<!-- Loading state -->
+<section class="section" id="loadingView">
+  <div class="state">
+    <div class="spinner" aria-hidden="true"></div>
+    <h2 class="state__title">Loading your dashboard…</h2>
+  </div>
+</section>
+
+<!-- Empty (no analysis yet) -->
+<section class="section" id="emptyView" hidden>
+  <div class="page-hero">
+    <div class="page-hero__row">
+      <div class="page-hero__copy">
+        <h1 id="emptyHeading">Welcome.</h1>
+        <p class="sub">No analysis yet — start one to see your scores.</p>
+      </div>
+      <div class="page-hero__actions">
+        <button class="btn btn--primary btn--lg" id="runFirstAnalysis" type="button">Run my first teardown <span class="arrow">→</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Result view -->
+<section class="section" id="resultView" hidden>
+  <div class="page-hero">
+    <div class="page-hero__row">
+      <div class="page-hero__copy">
+        <h1 id="resultHeading">Your teardown</h1>
+        <p class="sub">
+          <span class="page-hero__url" id="resultUrl"></span>
+          <span class="pill" id="lastRun"></span>
+        </p>
+      </div>
+      <div class="page-hero__actions">
+        <div class="tabs" role="tablist" aria-label="Device strategy">
+          <button class="tab is-active" data-strategy="mobile" type="button" role="tab" aria-selected="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+            Mobile
+          </button>
+          <button class="tab" data-strategy="desktop" type="button" role="tab" aria-selected="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Desktop
+          </button>
+        </div>
+        <button class="btn btn--primary" id="reanalyze" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3.5-7.1"/><path d="M21 3v6h-6"/></svg>
+          Re-analyze
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="run-banner" id="runBanner"><span class="dot"></span> Running fresh analysis — this takes 30–45 seconds.</div>
+
+  <div class="grid-eyebrow"><span>Lighthouse scores</span><span id="strategyLabel">Mobile</span></div>
+  <div class="scores">
+    <div class="score-tile empty" id="scorePerf">
+      <div>
+        <div class="score-tile__label">Performance</div>
+      </div>
+      <div class="score-tile__value"><span data-value>—</span></div>
+      <div class="score-tile__bar"><span data-bar style="width:0%"></span></div>
+    </div>
+    <div class="score-tile empty" id="scoreA11y">
+      <div>
+        <div class="score-tile__label">Accessibility</div>
+      </div>
+      <div class="score-tile__value"><span data-value>—</span></div>
+      <div class="score-tile__bar"><span data-bar style="width:0%"></span></div>
+    </div>
+    <div class="score-tile empty" id="scoreSeo">
+      <div>
+        <div class="score-tile__label">SEO</div>
+      </div>
+      <div class="score-tile__value"><span data-value>—</span></div>
+      <div class="score-tile__bar"><span data-bar style="width:0%"></span></div>
+    </div>
+    <div class="score-tile empty" id="scoreBest">
+      <div>
+        <div class="score-tile__label">Best Practices</div>
+      </div>
+      <div class="score-tile__value"><span data-value>—</span></div>
+      <div class="score-tile__bar"><span data-bar style="width:0%"></span></div>
+    </div>
+  </div>
+
+  <div class="grid-eyebrow"><span>Core Web Vitals (mobile)</span><span>Lower is better</span></div>
+  <div class="vitals">
+    <div class="vital" id="vLcp"><div class="vital__label">LCP</div><div class="vital__value">—</div><div class="vital__hint">Largest paint</div></div>
+    <div class="vital" id="vInp"><div class="vital__label">INP</div><div class="vital__value">—</div><div class="vital__hint">Interaction</div></div>
+    <div class="vital" id="vCls"><div class="vital__label">CLS</div><div class="vital__value">—</div><div class="vital__hint">Layout shift</div></div>
+    <div class="vital" id="vTbt"><div class="vital__label">TBT</div><div class="vital__value">—</div><div class="vital__hint">Blocking time</div></div>
+    <div class="vital" id="vFcp"><div class="vital__label">FCP</div><div class="vital__value">—</div><div class="vital__hint">First paint</div></div>
+    <div class="vital" id="vSi"><div class="vital__label">SI</div><div class="vital__value">—</div><div class="vital__hint">Speed Index</div></div>
+  </div>
+
+  <div class="row-2">
+    <div class="card">
+      <div class="card__head">
+        <h3 class="card__title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          Page meta &amp; SEO
+        </h3>
+        <span class="card__sub">What search &amp; AI see</span>
+      </div>
+      <div class="card__body">
+        <div class="meta-list">
+          <div class="meta-row">
+            <div class="meta-row__label">Title <span class="len" id="lenTitle"></span></div>
+            <div class="meta-row__value" id="valTitle">—</div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-row__label">Description <span class="len" id="lenDesc"></span></div>
+            <div class="meta-row__value" id="valDesc">—</div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-row__label">Canonical</div>
+            <div class="meta-row__value" id="valCanonical">—</div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-row__label">H1 tags</div>
+            <div class="meta-row__value" id="valH1">—</div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-row__label">Schema.org markup</div>
+            <div class="meta-row__value" id="valSchema">—</div>
+          </div>
+          <div class="meta-row">
+            <div class="meta-row__label">robots.txt &amp; sitemap.xml</div>
+            <div class="meta-row__value" id="valRobotsSitemap">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card__head">
+        <h3 class="card__title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+          Social share preview
+        </h3>
+        <span class="card__sub" id="ogHint">og:* tags</span>
+      </div>
+      <div class="card__body">
+        <div class="og-preview">
+          <div class="og-preview__img" id="ogImg">No og:image set</div>
+          <div class="og-preview__body">
+            <div class="og-preview__url" id="ogUrl">—</div>
+            <div class="og-preview__title" id="ogTitle">—</div>
+            <div class="og-preview__desc" id="ogDesc">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row-2">
+    <div class="card">
+      <div class="card__head">
+        <h3 class="card__title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.6 3.3 8.7 8 9.9 4.7-1.2 8-5.3 8-9.9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+          Trust &amp; security
+        </h3>
+        <span class="card__sub">Headers &amp; TLS</span>
+      </div>
+      <div class="card__body">
+        <div class="trust-grid">
+          <div class="trust-item">
+            <span class="trust-item__label">
+              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+              HTTPS
+            </span>
+            <span class="trust-item__val" id="trustHttps">—</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-item__label">
+              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.6 3.3 8.7 8 9.9 4.7-1.2 8-5.3 8-9.9V6l-8-3Z"/></svg></span>
+              HSTS header
+            </span>
+            <span class="trust-item__val" id="trustHsts">—</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-item__label">
+              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 12 2 2 4-4"/><path d="M12 3 4 6v6c0 4.6 3.3 8.7 8 9.9 4.7-1.2 8-5.3 8-9.9V6l-8-3Z"/></svg></span>
+              Content-Security-Policy
+            </span>
+            <span class="trust-item__val" id="trustCsp">—</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-item__label">
+              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></span>
+              X-Frame-Options
+            </span>
+            <span class="trust-item__val" id="trustXFrame">—</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-item__label">
+              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="9" width="18" height="10" rx="2"/><circle cx="7" cy="14" r="1"/><path d="M3 9V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/></svg></span>
+              Server
+            </span>
+            <span class="trust-item__val" id="trustServer">—</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-item__label">
+              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18"/></svg></span>
+              GDPR + EU operator
+            </span>
+            <span class="trust-item__val">Northline · UK</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card__head">
+        <h3 class="card__title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18"/></svg>
+          Mobile vs Desktop
+        </h3>
+        <span class="card__sub">Lighthouse comparison</span>
+      </div>
+      <div class="card__body">
+        <div id="compare" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:12px">
+          <div></div>
+          <div class="mono" style="text-align:right;color:var(--ink-4)">M</div>
+          <div class="mono" style="text-align:right;color:var(--ink-4)">D</div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-eyebrow"><span>Past runs</span><span id="historyCount"></span></div>
+  <div class="history" id="historyList"></div>
+</section>
+
+<!-- Error -->
+<section class="section" id="errorView" hidden>
+  <div class="state">
+    <h2 class="state__title">Something went wrong.</h2>
+    <p class="state__sub" id="errorMsg">Please try again, or sign out and back in.</p>
+    <button class="btn btn--primary" type="button" onclick="location.reload()">Reload</button>
+  </div>
+</section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+
+const SUPABASE_URL = "https://fwdzlpqisrbwkyooqvkv.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_YdN1vRjiUvwHr8gLfs37vQ_H2ZJI1gf";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
+});
+
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+const show = (id) => { $$('main > section').forEach(s => s.hidden = true); $(id).hidden = false; };
+const toast = (msg, ms=2200) => {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("on"), ms);
+};
+
+const fmtRelative = (iso) => {
+  const d = new Date(iso); const s = (Date.now() - d.getTime())/1000;
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s/60)}m ago`;
+  if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+  return `${Math.floor(s/86400)}d ago`;
+};
+const fmtMs = (n) => n == null ? "—" : (n >= 1000 ? `${(n/1000).toFixed(1)} s` : `${n} ms`);
+const fmtCls = (n) => n == null ? "—" : Number(n).toFixed(3);
+
+const scoreBucket = (n) => n == null ? "empty" : n >= 90 ? "good" : n >= 50 ? "warn" : "bad";
+const vitalBucket = {
+  lcp:  (n) => n == null ? "" : n <= 2500 ? "good" : n <= 4000 ? "warn" : "bad",
+  inp:  (n) => n == null ? "" : n <= 200  ? "good" : n <= 500  ? "warn" : "bad",
+  cls:  (n) => n == null ? "" : n <= 0.1  ? "good" : n <= 0.25 ? "warn" : "bad",
+  tbt:  (n) => n == null ? "" : n <= 200  ? "good" : n <= 600  ? "warn" : "bad",
+  fcp:  (n) => n == null ? "" : n <= 1800 ? "good" : n <= 3000 ? "warn" : "bad",
+  si:   (n) => n == null ? "" : n <= 3400 ? "good" : n <= 5800 ? "warn" : "bad",
+};
+
+// Bootstrap
+let session = null;
+let profile = null;
+let latest = null;
+let strategy = "mobile";
+
+async function init() {
+  const { data: { session: s } } = await supabase.auth.getSession();
+  session = s;
+  if (!session) {
+    location.replace("/?signin=1");
+    return;
+  }
+  $("#navEmail").textContent = session.user.email || "";
+
+  const [profRes, anaRes] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", session.user.id).single(),
+    supabase.from("site_analyses").select("*").eq("user_id", session.user.id).order("run_at", { ascending: false }).limit(20)
+  ]);
+
+  profile = profRes.data;
+  const analyses = anaRes.data || [];
+  latest = analyses[0] || null;
+
+  if (!latest) {
+    show("#emptyView");
+    const name = profile?.full_name?.split(" ")[0] || "there";
+    $("#emptyHeading").textContent = `Hey ${name}.`;
+    return;
+  }
+
+  renderResult(latest, analyses);
+  show("#resultView");
+}
+
+function renderScore(rootId, n) {
+  const el = document.getElementById(rootId);
+  el.classList.remove("good","warn","bad","empty");
+  el.classList.add(scoreBucket(n));
+  el.querySelector("[data-value]").textContent = n == null ? "—" : n;
+  el.querySelector("[data-bar]").style.width = `${n == null ? 0 : n}%`;
+}
+
+function setVital(id, val, bucket, fmt) {
+  const el = document.getElementById(id);
+  el.classList.remove("good","warn","bad");
+  if (bucket) el.classList.add(bucket);
+  el.querySelector(".vital__value").textContent = fmt;
+}
+
+function renderResult(a, history) {
+  const firstName = profile?.full_name?.split(" ")[0] || "you";
+  $("#resultHeading").textContent = `Here's your teardown, ${firstName}.`;
+  $("#resultUrl").textContent = a.url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  $("#lastRun").textContent = `Last run · ${fmtRelative(a.run_at)}`;
+
+  applyStrategy();
+
+  // Vitals (mobile only — Core Web Vitals are reported on mobile)
+  setVital("vLcp", a.lcp_ms, vitalBucket.lcp(a.lcp_ms), fmtMs(a.lcp_ms));
+  setVital("vInp", a.inp_ms, vitalBucket.inp(a.inp_ms), fmtMs(a.inp_ms));
+  setVital("vCls", a.cls, vitalBucket.cls(a.cls), fmtCls(a.cls));
+  setVital("vTbt", a.tbt_ms, vitalBucket.tbt(a.tbt_ms), fmtMs(a.tbt_ms));
+  setVital("vFcp", a.fcp_ms, vitalBucket.fcp(a.fcp_ms), fmtMs(a.fcp_ms));
+  setVital("vSi", a.si_ms, vitalBucket.si(a.si_ms), fmtMs(a.si_ms));
+
+  // Meta SEO
+  const title = a.meta_title || "";
+  const desc = a.meta_description || "";
+  $("#valTitle").innerHTML = title ? esc(title) : '<span class="empty">No &lt;title&gt; tag</span>';
+  $("#valTitle").classList.toggle("empty", !title);
+  $("#lenTitle").textContent = title ? `${title.length} chars` : "";
+
+  $("#valDesc").innerHTML = desc ? esc(desc) : '<span class="empty">No meta description</span>';
+  $("#valDesc").classList.toggle("empty", !desc);
+  $("#lenDesc").textContent = desc ? `${desc.length} chars` : "";
+
+  $("#valCanonical").innerHTML = a.meta_canonical ? `<code>${esc(a.meta_canonical)}</code>` : '<span class="empty">Not set</span>';
+  $("#valCanonical").classList.toggle("empty", !a.meta_canonical);
+
+  const h1c = a.h1_count ?? 0;
+  const h1bucket = h1c === 1 ? "good" : h1c === 0 ? "bad" : "warn";
+  const h1Msg = h1c === 1 ? "1 H1 (recommended)" : `${h1c} H1 tag${h1c===1?"":"s"} — ${h1c===0?"add one":"use exactly one"}`;
+  $("#valH1").innerHTML = `<span class="chip ${h1bucket}">${checkSvg(h1bucket==='good')} ${h1Msg}</span>` + (a.h1_first ? ` <code style="margin-left:6px">${esc(a.h1_first.slice(0,80))}</code>` : "");
+
+  if (a.schema_types && a.schema_types.length) {
+    $("#valSchema").innerHTML = `<div class="chiprow">${a.schema_types.slice(0,8).map(t => `<span class="chip good">${checkSvg(true)} ${esc(t)}</span>`).join("")}</div>`;
+  } else {
+    $("#valSchema").innerHTML = '<span class="chip bad">' + checkSvg(false) + ' No structured data found</span>';
+  }
+
+  const rs = a.has_robots, sm = a.has_sitemap;
+  $("#valRobotsSitemap").innerHTML = `<div class="chiprow">
+    <span class="chip ${rs?'good':'bad'}">${checkSvg(rs)} robots.txt ${rs?'found':'missing'}</span>
+    <span class="chip ${sm?'good':'bad'}">${checkSvg(sm)} sitemap.xml ${sm?'found':'missing'}</span>
+  </div>`;
+
+  // OG preview
+  const ogUrl = new URL(a.url).hostname;
+  $("#ogUrl").textContent = ogUrl.toUpperCase();
+  $("#ogTitle").textContent = a.og_title || a.meta_title || "No og:title or title";
+  $("#ogTitle").classList.toggle("empty", !a.og_title && !a.meta_title);
+  $("#ogDesc").textContent = a.og_description || a.meta_description || "No og:description";
+  if (a.og_image) {
+    $("#ogImg").style.backgroundImage = `url("${a.og_image}")`;
+    $("#ogImg").textContent = "";
+  } else {
+    $("#ogImg").style.backgroundImage = "";
+    $("#ogImg").textContent = "No og:image set";
+  }
+
+  // Trust
+  $("#trustHttps").innerHTML = badge(a.is_https, a.is_https ? "Enabled" : "HTTP only");
+  $("#trustHsts").innerHTML = badge(a.hsts_set, a.hsts_set ? "Set" : "Not set");
+  $("#trustCsp").innerHTML = badge(a.csp_set, a.csp_set ? "Set" : "Not set");
+  $("#trustXFrame").textContent = a.x_frame_options || "Not set";
+  $("#trustServer").textContent = a.server || "Hidden";
+
+  // Compare table
+  const cmp = $("#compare");
+  cmp.innerHTML = "";
+  const head = (label, m, d) => `<div></div><div class="mono" style="text-align:right;color:var(--ink-4)">M</div><div class="mono" style="text-align:right;color:var(--ink-4)">D</div><div></div>`;
+  const rows = [
+    ["Performance", a.perf_mobile, a.perf_desktop],
+    ["Accessibility", a.a11y_mobile, a.a11y_desktop],
+    ["SEO", a.seo_mobile, a.seo_desktop],
+    ["Best Practices", a.best_mobile, a.best_desktop],
+  ];
+  cmp.innerHTML = `
+    <div></div><div class="mono" style="text-align:right;color:var(--ink-4)">Mobile</div><div class="mono" style="text-align:right;color:var(--ink-4)">Desktop</div><div></div>
+    ${rows.map(([l,m,d]) => `
+      <div style="font-size:13px">${l}</div>
+      <div style="text-align:right;font-weight:600;color:var(--${scoreBucket(m)==='good'?'good':scoreBucket(m)==='warn'?'warn':scoreBucket(m)==='bad'?'bad':'ink-5'})">${m ?? '—'}</div>
+      <div style="text-align:right;font-weight:600;color:var(--${scoreBucket(d)==='good'?'good':scoreBucket(d)==='warn'?'warn':scoreBucket(d)==='bad'?'bad':'ink-5'})">${d ?? '—'}</div>
+      <div></div>
+    `).join("")}
+  `;
+
+  // History
+  const list = $("#historyList");
+  list.innerHTML = history.map(h => `
+    <div class="history-row">
+      <div class="history-row__url" title="${esc(h.url)}">${esc(h.url.replace(/^https?:\/\//,"").replace(/\/$/, ""))}</div>
+      <div class="history-row__date">${new Date(h.run_at).toLocaleString()}</div>
+      <div class="history-row__score" style="color:var(--${scoreBucket(h.perf_mobile)==='good'?'good':scoreBucket(h.perf_mobile)==='warn'?'warn':'bad'})">Perf ${h.perf_mobile ?? '—'}</div>
+    </div>
+  `).join("");
+  $("#historyCount").textContent = `${history.length} run${history.length===1?"":"s"}`;
+}
+
+function applyStrategy() {
+  if (!latest) return;
+  const a = latest;
+  const isMobile = strategy === "mobile";
+  $("#strategyLabel").textContent = isMobile ? "Mobile" : "Desktop";
+  renderScore("scorePerf", isMobile ? a.perf_mobile : a.perf_desktop);
+  renderScore("scoreA11y", isMobile ? a.a11y_mobile : a.a11y_desktop);
+  renderScore("scoreSeo",  isMobile ? a.seo_mobile  : a.seo_desktop);
+  renderScore("scoreBest", isMobile ? a.best_mobile : a.best_desktop);
+}
+
+function badge(ok, label) {
+  return `<span class="chip ${ok?'good':'bad'}">${checkSvg(ok)} ${esc(label)}</span>`;
+}
+function checkSvg(ok) {
+  return ok
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+}
+function esc(s){return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+// Strategy tabs
+$$(".tab").forEach(t => {
+  t.addEventListener("click", () => {
+    $$(".tab").forEach(x => { x.classList.remove("is-active"); x.setAttribute("aria-selected","false"); });
+    t.classList.add("is-active");
+    t.setAttribute("aria-selected","true");
+    strategy = t.dataset.strategy;
+    applyStrategy();
+  });
+});
+
+// Re-analyze + first analyze
+async function runAnalysis() {
+  $("#runBanner").classList.add("on");
+  const btn = $("#reanalyze"); if (btn) btn.disabled = true;
+  const firstBtn = $("#runFirstAnalysis"); if (firstBtn) firstBtn.disabled = true;
+  try {
+    const { data: { session: s } } = await supabase.auth.getSession();
+    if (!s) throw new Error("Not signed in");
+    const r = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${s.access_token}` },
+      body: JSON.stringify({})
+    });
+    const data = await r.json();
+    if (!r.ok || !data.ok) throw new Error(data.error || "Analysis failed");
+    latest = data.analysis;
+    const { data: history } = await supabase.from("site_analyses").select("*").eq("user_id", s.user.id).order("run_at", { ascending: false }).limit(20);
+    renderResult(latest, history || [latest]);
+    show("#resultView");
+    toast("Analysis complete");
+  } catch (e) {
+    console.error(e);
+    toast("Couldn't run — try again");
+  } finally {
+    $("#runBanner").classList.remove("on");
+    if (btn) btn.disabled = false;
+    if (firstBtn) firstBtn.disabled = false;
+  }
+}
+$("#reanalyze")?.addEventListener("click", runAnalysis);
+$("#runFirstAnalysis")?.addEventListener("click", runAnalysis);
+
+$("#signOut").addEventListener("click", async () => {
+  await supabase.auth.signOut();
+  location.replace("/");
+});
+
+init().catch(e => {
+  console.error(e);
+  $("#errorMsg").textContent = e?.message || "Please try again.";
+  show("#errorView");
+});
+</script>
+</body>
+</html>

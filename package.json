@@ -1,0 +1,12 @@
+{
+  "name": "northline-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}

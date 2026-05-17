@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Signing you in — Northline</title>
+<meta name="robots" content="noindex,nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box} html,body{margin:0;padding:0;background:#fafafa;color:#171717;font-family:"Geist",Arial,system-ui;height:100%}
+body{display:flex;align-items:center;justify-content:center;padding:24px}
+.card{
+  max-width:420px;width:100%;
+  background:#fff;border:1px solid #ebebeb;border-radius:18px;
+  box-shadow:0 24px 60px -12px rgba(0,0,0,0.06);
+  padding:32px;text-align:center;
+}
+.brand{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;letter-spacing:-0.01em;margin-bottom:20px}
+.brand svg{width:18px;height:18px}
+.spinner{
+  width:36px;height:36px;border-radius:50%;
+  border:3px solid #ebebeb;border-top-color:#171717;
+  animation:spin .9s linear infinite;margin:0 auto 18px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+h1{font-size:20px;line-height:1.2;letter-spacing:-0.025em;margin:0 0 8px}
+p{margin:0;color:#666;font-size:14px;line-height:1.5}
+.err{color:#c11b1b;margin-top:14px;font-size:13px;display:none}
+.err.on{display:block}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:18px;
+  background:#171717;color:#fff;padding:10px 16px;border-radius:8px;font-weight:500;font-size:14px;
+}
+.btn:hover{background:#000;text-decoration:none}
+a{color:inherit}
+</style>
+</head>
+<body>
+<div class="card">
+  <span class="brand">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M3 20 L12 4 L21 20 Z" fill="#171717"/>
+      <path d="M12 4 L21 20" stroke="#fff" stroke-width="1.5"/>
+    </svg>
+    Northline
+  </span>
+  <div class="spinner" aria-hidden="true"></div>
+  <h1 id="title">Signing you in…</h1>
+  <p id="sub">One moment while we verify your magic link.</p>
+  <p class="err" id="err"></p>
+  <a class="btn" id="home" href="/" style="display:none">Back to homepage</a>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+
+const SUPABASE_URL = "https://fwdzlpqisrbwkyooqvkv.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_YdN1vRjiUvwHr8gLfs37vQ_H2ZJI1gf";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true, flowType: "pkce" }
+});
+
+const $ = (s) => document.querySelector(s);
+const showError = (msg) => {
+  $("#title").textContent = "Sign-in didn't complete";
+  $("#sub").textContent = "The magic link may have expired or already been used.";
+  $("#err").textContent = msg;
+  $("#err").classList.add("on");
+  $("#home").style.display = "inline-flex";
+};
+
+(async () => {
+  try {
+    const url = new URL(location.href);
+
+    // Handle PKCE code grant
+    const code = url.searchParams.get("code");
+    if (code) {
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (error) throw error;
+    }
+
+    // detectSessionInUrl also handles hash-based magic links
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session) {
+      const next = url.searchParams.get("next") || "/dashboard";
+      location.replace(next);
+      return;
+    }
+
+    // No session — maybe error in url
+    const errDesc = url.searchParams.get("error_description") || url.searchParams.get("error");
+    showError(errDesc ? decodeURIComponent(errDesc) : "No session — please request a new link.");
+  } catch (e) {
+    console.error(e);
+    showError(e?.message || "Unexpected error");
+  }
+})();
+</script>
+</body>
+</html>

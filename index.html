@@ -159,7 +159,12 @@ p{margin:0;color:var(--ink-2)}
   transition:background .15s ease, color .15s ease;
 }
 .nav__link:hover{background:#f5f5f5;color:var(--ink)}
-.nav__cta{display:flex;align-items:center;gap:8px}
+.nav__cta{display:flex;align-items:center;gap:12px}
+.nav__signin{
+  font-size:14px;font-weight:500;color:var(--ink-3);
+  padding:8px 4px;transition:color .15s ease;
+}
+.nav__signin:hover{color:var(--ink)}
 @media (max-width:820px){
   .nav__links{display:none}
 }
@@ -826,6 +831,7 @@ p{margin:0;color:var(--ink-2)}
     </nav>
     <div class="nav__cta">
       <a class="btn btn--ghost" href="#login" aria-label="Client login">Client login</a>
+      <a class="nav__signin" href="#" id="navSignin">Log in</a>
       <a class="btn btn--primary" href="#contact" data-lead-open>Get my audit <span class="arrow" aria-hidden="true">→</span></a>
     </div>
   </div>
@@ -1428,6 +1434,90 @@ p{margin:0;color:var(--ink-2)}
 
 <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
+<script type="module">
+/* Supabase auth glue:
+   - On successful lead submit, send a magic link with profile data in user_metadata
+   - "Log in" link in nav opens a small inline prompt for an email
+   - On the homepage, if a session already exists, swap Log in for "Open dashboard"
+*/
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+
+const SUPABASE_URL = "https://fwdzlpqisrbwkyooqvkv.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_YdN1vRjiUvwHr8gLfs37vQ_H2ZJI1gf";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false, flowType: "pkce" }
+});
+
+const redirectTo = `${location.origin}/auth.html?next=/dashboard`;
+
+// If already signed in, show "Open dashboard" instead of Log in
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const link = document.getElementById("navSignin");
+  if (!link) return;
+  if (session) {
+    link.textContent = "Open dashboard";
+    link.href = "/dashboard";
+  }
+  // Handle ?signin=1 query (sent here after dashboard sign-out)
+  if (new URL(location.href).searchParams.get("signin") === "1") {
+    setTimeout(() => promptSignin(), 200);
+  }
+})();
+
+// Trigger magic link on lead success
+window.addEventListener("northline:lead-success", async (e) => {
+  const d = e.detail || {};
+  if (!d.email) return;
+  try {
+    const { error } = await supabase.auth.signInWithOtp({
+      email: d.email,
+      options: {
+        emailRedirectTo: redirectTo,
+        data: {
+          full_name: d.name,
+          name: d.name,
+          website: d.website,
+          income_range: d.income_range,
+          biggest_problem: d.biggest_problem
+        }
+      }
+    });
+    if (error) console.warn("Magic link send failed:", error.message);
+  } catch (err) {
+    console.warn("Magic link error:", err);
+  }
+});
+
+// Sign-in prompt for returning users
+async function promptSignin() {
+  const email = window.prompt("Sign in to your dashboard. Enter your email:");
+  if (!email) return;
+  const e = email.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) {
+    alert("Please enter a valid email.");
+    return;
+  }
+  const { error } = await supabase.auth.signInWithOtp({
+    email: e,
+    options: { emailRedirectTo: redirectTo }
+  });
+  if (error) {
+    alert(`Couldn't send magic link: ${error.message}`);
+    return;
+  }
+  alert(`Magic link sent to ${e}. Check your inbox to sign in.`);
+}
+
+document.getElementById("navSignin")?.addEventListener("click", (e) => {
+  const link = e.currentTarget;
+  if (link.getAttribute("href") === "/dashboard") return; // already signed in
+  e.preventDefault();
+  promptSignin();
+});
+</script>
+
 <!-- ============== LEAD MODAL (Free Teardown) ============== -->
 <div class="lead-backdrop" id="leadBackdrop" role="dialog" aria-modal="true" aria-labelledby="leadModalTitle" hidden>
   <div class="lead-modal" id="leadModal">
@@ -1544,8 +1634,8 @@ p{margin:0;color:var(--ink-2)}
           <span class="lead-success__icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
           </span>
-          <h3 class="lead-success__title">You're in. Teardown incoming.</h3>
-          <p class="lead-success__sub">We'll record your 5-min Loom and send it to your inbox within 48h. Keep an eye out for a note from <strong>hello@northline.studio</strong>.</p>
+          <h3 class="lead-success__title">Check your inbox.</h3>
+          <p class="lead-success__sub" id="leadSuccessSub">We've sent you a magic link to <strong id="leadSuccessEmail"></strong>. Click it and your live dashboard — scores, vitals, SEO, security — opens instantly.</p>
           <button class="btn btn--ghost" type="button" id="leadDone">Close</button>
         </div>
       </div>
@@ -1758,6 +1848,12 @@ p{margin:0;color:var(--ink-2)}
         console.error("Lead submit failed", res.status, data);
         throw new Error(data.error || "Submit failed");
       }
+      // Fire-and-forget: also send a magic link so they can sign in to the dashboard
+      window.dispatchEvent(new CustomEvent("northline:lead-success", {
+        detail: { ...state.data, email: state.data.email }
+      }));
+      const emailEl = document.getElementById("leadSuccessEmail");
+      if (emailEl) emailEl.textContent = state.data.email;
       setStep("done");
     } catch (err) {
       submitBtn.disabled = false;
