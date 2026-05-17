@@ -299,79 +299,6 @@ img,svg{display:block;max-width:100%}
   font-size:13px;z-index:1000;opacity:0;transition:opacity .2s ease;pointer-events:none;
 }
 .toast.on{opacity:1}
-
-/* ─── Plan / subscription UI ─── */
-.tier-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  height:28px;padding:0 12px;border-radius:99px;
-  font-size:12px;font-weight:600;letter-spacing:-0.005em;
-  border:1px solid var(--line);background:#fff;color:var(--ink-2);
-}
-.tier-badge--premium{
-  color:#fff;border-color:transparent;
-  background:linear-gradient(120deg,#0a72ef 0%,#6d28d9 28%,#de1d8d 56%,#ff5b4f 84%);
-  background-size:200% 200%;
-  animation:tierShift 14s ease-in-out infinite;
-}
-@keyframes tierShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.tier-badge svg{width:12px;height:12px}
-
-.upgrade-card{
-  position:relative;border-radius:18px;padding:1.5px;margin:20px 0 28px;
-  background:linear-gradient(120deg,#0a72ef 0%,#6d28d9 18%,#de1d8d 42%,#ff5b4f 70%,#fb923c 90%,#0a72ef 100%);
-  background-size:300% 300%;
-  animation:tierShift 16s ease-in-out infinite;
-}
-.upgrade-card__inner{
-  display:flex;align-items:center;justify-content:space-between;gap:24px;
-  padding:22px 24px;border-radius:16.5px;background:#fff;
-}
-.upgrade-card__copy{display:flex;flex-direction:column;gap:4px;min-width:0}
-.upgrade-card__title{font-size:18px;font-weight:600;letter-spacing:-0.02em;margin:0}
-.upgrade-card__sub{font-size:13px;color:var(--ink-3);margin:0}
-.upgrade-card__features{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.upgrade-card__chip{
-  display:inline-flex;align-items:center;gap:4px;
-  font-size:11px;padding:4px 8px;border-radius:99px;
-  background:var(--bg-tint);color:var(--ink-2);
-}
-.upgrade-card__cta{flex:0 0 auto}
-@media (max-width:720px){
-  .upgrade-card__inner{flex-direction:column;align-items:flex-start}
-  .upgrade-card__cta{width:100%}
-  .upgrade-card__cta .btn{width:100%}
-}
-
-/* Premium-only gate (blur + overlay) */
-.gate{position:relative;overflow:hidden}
-.gate.is-locked > :not(.gate__overlay){filter:blur(6px);opacity:.45;pointer-events:none;user-select:none}
-.gate__overlay{
-  display:none;
-  position:absolute;inset:0;z-index:2;
-  background:linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.92));
-  border-radius:inherit;
-  flex-direction:column;align-items:center;justify-content:center;text-align:center;
-  padding:24px;gap:10px;
-}
-.gate.is-locked .gate__overlay{display:flex}
-.gate__lock{
-  width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,#0a72ef,#de1d8d,#ff5b4f);
-  display:flex;align-items:center;justify-content:center;color:#fff;
-}
-.gate__lock svg{width:16px;height:16px}
-.gate__title{font-size:14px;font-weight:600;margin:0}
-.gate__sub{font-size:12px;color:var(--ink-3);margin:0;max-width:36ch}
-
-/* Sub-status pill in nav */
-.sub-status{
-  display:inline-flex;align-items:center;gap:6px;
-  font-size:11px;color:var(--ink-3);
-  padding:4px 8px;border-radius:99px;background:var(--bg-tint);
-}
-.sub-status .dot{width:6px;height:6px;border-radius:50%;background:#27c93f}
-.sub-status--warn .dot{background:#ff9500}
-.sub-status--bad .dot{background:#ff3b30}
 </style>
 </head>
 <body>
@@ -388,9 +315,7 @@ img,svg{display:block;max-width:100%}
     <span class="nav__divider" aria-hidden="true"></span>
     <span class="nav__title">Dashboard</span>
     <div class="nav__right">
-      <span class="tier-badge" id="tierBadge" hidden></span>
       <span class="nav__email" id="navEmail"></span>
-      <button class="btn btn--ghost" id="manageBilling" type="button" hidden>Manage subscription</button>
       <button class="btn btn--ghost" id="signOut" type="button">Sign out</button>
     </div>
   </div>
@@ -467,29 +392,6 @@ img,svg{display:block;max-width:100%}
       </svg>
     </span>
     Running fresh analysis — this takes 30–45 seconds.
-  </div>
-
-  <!-- Upgrade card (free tier only) -->
-  <div class="upgrade-card" id="upgradeCard" hidden>
-    <div class="upgrade-card__inner">
-      <div class="upgrade-card__copy">
-        <h3 class="upgrade-card__title">Unlock Website Max</h3>
-        <p class="upgrade-card__sub">£10/month · Daily insights to grow your bottom line through an optimized website.</p>
-        <div class="upgrade-card__features">
-          <span class="upgrade-card__chip">∞ Re-analyses</span>
-          <span class="upgrade-card__chip">Vitals trends</span>
-          <span class="upgrade-card__chip">Security audit</span>
-          <span class="upgrade-card__chip">Social preview</span>
-          <span class="upgrade-card__chip">Multi-site</span>
-          <span class="upgrade-card__chip">PDF export</span>
-        </div>
-      </div>
-      <div class="upgrade-card__cta">
-        <button class="btn btn--primary" id="upgradeBtn" type="button">
-          Upgrade to Website Max <span class="arrow">→</span>
-        </button>
-      </div>
-    </div>
   </div>
 
   <div class="grid-eyebrow"><span>Lighthouse scores</span><span id="strategyLabel">Mobile</span></div>
@@ -573,13 +475,7 @@ img,svg{display:block;max-width:100%}
       </div>
     </div>
 
-    <div class="card gate" id="gateSocial">
-      <div class="gate__overlay">
-        <span class="gate__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
-        <p class="gate__title">Social preview is a Website Max feature</p>
-        <p class="gate__sub">See exactly how your link renders on LinkedIn, X, Slack and iMessage.</p>
-        <button class="btn btn--primary" data-upgrade type="button">Get Website Max · £10/mo</button>
-      </div>
+    <div class="card">
       <div class="card__head">
         <h3 class="card__title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
@@ -601,13 +497,7 @@ img,svg{display:block;max-width:100%}
   </div>
 
   <div class="row-2">
-    <div class="card gate" id="gateSecurity">
-      <div class="gate__overlay">
-        <span class="gate__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
-        <p class="gate__title">Security audit is a Website Max feature</p>
-        <p class="gate__sub">HSTS, CSP, X-Frame-Options, server signature and TLS posture on every run.</p>
-        <button class="btn btn--primary" data-upgrade type="button">Get Website Max · £10/mo</button>
-      </div>
+    <div class="card">
       <div class="card__head">
         <h3 class="card__title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.6 3.3 8.7 8 9.9 4.7-1.2 8-5.3 8-9.9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
@@ -743,31 +633,6 @@ let profile = null;
 let latest = null;
 let strategy = "mobile";
 
-const isPremium = () => profile?.subscription_tier === "premium" &&
-  ["active","trialing"].includes(profile?.subscription_status || "active");
-
-function renderTier() {
-  const badge = $("#tierBadge");
-  const upgradeCard = $("#upgradeCard");
-  const manageBtn = $("#manageBilling");
-  const premium = isPremium();
-
-  badge.hidden = false;
-  badge.classList.toggle("tier-badge--premium", premium);
-  badge.innerHTML = premium
-    ? '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 16 3 6l5 4 4-7 4 7 5-4-2 10H5Zm0 2h14v2H5z"/></svg> Website Max'
-    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg> Free';
-
-  upgradeCard.hidden = premium;
-  manageBtn.hidden = !profile?.stripe_customer_id;
-  document.querySelectorAll(".gate").forEach(g => g.classList.toggle("is-locked", !premium));
-}
-
-async function refreshProfile() {
-  const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
-  if (data) { profile = data; renderTier(); }
-}
-
 async function init() {
   const { data: { session: s } } = await supabase.auth.getSession();
   session = s;
@@ -785,26 +650,6 @@ async function init() {
   profile = profRes.data;
   const analyses = anaRes.data || [];
   latest = analyses[0] || null;
-  renderTier();
-
-  // Handle Stripe Checkout return — webhook may not have landed yet, so poll briefly.
-  const qs = new URLSearchParams(location.search);
-  if (qs.get("upgraded") === "1") {
-    toast("Activating Website Max…", 3000);
-    history.replaceState({}, "", "/dashboard");
-    let tries = 0;
-    const poll = setInterval(async () => {
-      tries++;
-      await refreshProfile();
-      if (isPremium() || tries > 10) {
-        clearInterval(poll);
-        if (isPremium()) toast("Welcome to Website Max ✨", 3200);
-      }
-    }, 1500);
-  } else if (qs.get("upgrade") === "cancelled") {
-    history.replaceState({}, "", "/dashboard");
-    toast("Upgrade cancelled — no charge", 2400);
-  }
 
   if (!latest) {
     const name = profile?.full_name?.split(" ")[0] || "there";
@@ -976,17 +821,6 @@ $$(".tab").forEach(t => {
 
 // Re-analyze + first analyze
 async function runAnalysis() {
-  // Free tier: 1 run per 24h
-  if (!isPremium() && latest?.run_at) {
-    const since = (Date.now() - new Date(latest.run_at).getTime()) / 1000;
-    if (since < 24 * 3600) {
-      const hoursLeft = Math.ceil((24 * 3600 - since) / 3600);
-      toast(`Free tier: next run in ${hoursLeft}h — upgrade for unlimited`, 3200);
-      $("#upgradeCard")?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-  }
-
   $("#runBanner").classList.add("on");
   const btn = $("#reanalyze"); if (btn) btn.disabled = true;
   const firstBtn = $("#runFirstAnalysis"); if (firstBtn) firstBtn.disabled = true;
@@ -1020,54 +854,6 @@ $("#runFirstAnalysis")?.addEventListener("click", runAnalysis);
 $("#signOut").addEventListener("click", async () => {
   await supabase.auth.signOut();
   location.replace("/");
-});
-
-// ─── Stripe handlers ───
-async function startCheckout(btn) {
-  const original = btn?.innerHTML;
-  if (btn) { btn.disabled = true; btn.textContent = "Opening Stripe…"; }
-  try {
-    const { data: { session: s } } = await supabase.auth.getSession();
-    if (!s) throw new Error("Not signed in");
-    const r = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${s.access_token}` }
-    });
-    const data = await r.json();
-    if (!r.ok || !data.url) throw new Error(data.error || "Checkout failed");
-    location.href = data.url;
-  } catch (e) {
-    console.error(e);
-    toast(e.message || "Couldn't open checkout");
-    if (btn) { btn.disabled = false; btn.innerHTML = original; }
-  }
-}
-
-async function openPortal(btn) {
-  const original = btn?.innerHTML;
-  if (btn) { btn.disabled = true; btn.textContent = "Opening…"; }
-  try {
-    const { data: { session: s } } = await supabase.auth.getSession();
-    if (!s) throw new Error("Not signed in");
-    const r = await fetch("/api/portal", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${s.access_token}` }
-    });
-    const data = await r.json();
-    if (!r.ok || !data.url) throw new Error(data.error || "Portal failed");
-    location.href = data.url;
-  } catch (e) {
-    console.error(e);
-    toast(e.message || "Couldn't open billing portal");
-    if (btn) { btn.disabled = false; btn.innerHTML = original; }
-  }
-}
-
-$("#upgradeBtn")?.addEventListener("click", (e) => startCheckout(e.currentTarget));
-$("#manageBilling")?.addEventListener("click", (e) => openPortal(e.currentTarget));
-document.addEventListener("click", (e) => {
-  const t = e.target.closest("[data-upgrade]");
-  if (t) startCheckout(t);
 });
 
 init().catch(e => {

@@ -7,8 +7,6 @@
     "node": "22.x"
   },
   "dependencies": {
-    "cheerio": "^1.0.0",
-    "resend": "^6.12.3",
-    "stripe": "^22.1.1"
+    "cheerio": "^1.0.0"
   }
 }
