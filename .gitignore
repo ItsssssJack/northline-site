@@ -4,3 +4,5 @@
 .env.local
 .env.*.local
 node_modules
+email-preview/
+assets/hero-laptop-poster.original.jpg

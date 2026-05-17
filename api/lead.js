@@ -1,3 +1,5 @@
+import { sendWelcomeEmail } from "./_lib/welcome-email.js";
+
 const INCOME_RANGES = new Set([
   "lt_1k_mo",
   "1k_10k_mo",
@@ -134,5 +136,15 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(200).json({ ok: true, beehiiv: beehiivStatus });
+  // 3) Send welcome email via Resend (best-effort — fire-and-forget, don't fail the signup)
+  let emailStatus = "skipped";
+  try {
+    const result = await sendWelcomeEmail({ name, email, website, biggest_problem });
+    emailStatus = result.ok ? "sent" : (result.skipped ? "skipped" : "error");
+  } catch (e) {
+    console.error("Welcome email error", e);
+    emailStatus = "error_network";
+  }
+
+  return res.status(200).json({ ok: true, beehiiv: beehiivStatus, welcome_email: emailStatus });
 }
