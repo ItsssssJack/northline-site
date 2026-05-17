@@ -473,8 +473,8 @@ img,svg{display:block;max-width:100%}
   <div class="upgrade-card" id="upgradeCard" hidden>
     <div class="upgrade-card__inner">
       <div class="upgrade-card__copy">
-        <h3 class="upgrade-card__title">Unlock Northline Premium</h3>
-        <p class="upgrade-card__sub">£10/month · Unlimited re-runs, full history, security audit, social card, multi-site, PDF export.</p>
+        <h3 class="upgrade-card__title">Unlock Website Max</h3>
+        <p class="upgrade-card__sub">£10/month · Daily insights to grow your bottom line through an optimized website.</p>
         <div class="upgrade-card__features">
           <span class="upgrade-card__chip">∞ Re-analyses</span>
           <span class="upgrade-card__chip">Vitals trends</span>
@@ -486,7 +486,7 @@ img,svg{display:block;max-width:100%}
       </div>
       <div class="upgrade-card__cta">
         <button class="btn btn--primary" id="upgradeBtn" type="button">
-          Upgrade to Premium <span class="arrow">→</span>
+          Upgrade to Website Max <span class="arrow">→</span>
         </button>
       </div>
     </div>
@@ -576,9 +576,9 @@ img,svg{display:block;max-width:100%}
     <div class="card gate" id="gateSocial">
       <div class="gate__overlay">
         <span class="gate__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
-        <p class="gate__title">Social preview is a Premium feature</p>
+        <p class="gate__title">Social preview is a Website Max feature</p>
         <p class="gate__sub">See exactly how your link renders on LinkedIn, X, Slack and iMessage.</p>
-        <button class="btn btn--primary" data-upgrade type="button">Upgrade · £10/mo</button>
+        <button class="btn btn--primary" data-upgrade type="button">Get Website Max · £10/mo</button>
       </div>
       <div class="card__head">
         <h3 class="card__title">
@@ -604,9 +604,9 @@ img,svg{display:block;max-width:100%}
     <div class="card gate" id="gateSecurity">
       <div class="gate__overlay">
         <span class="gate__lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
-        <p class="gate__title">Security audit is a Premium feature</p>
+        <p class="gate__title">Security audit is a Website Max feature</p>
         <p class="gate__sub">HSTS, CSP, X-Frame-Options, server signature and TLS posture on every run.</p>
-        <button class="btn btn--primary" data-upgrade type="button">Upgrade · £10/mo</button>
+        <button class="btn btn--primary" data-upgrade type="button">Get Website Max · £10/mo</button>
       </div>
       <div class="card__head">
         <h3 class="card__title">
@@ -755,7 +755,7 @@ function renderTier() {
   badge.hidden = false;
   badge.classList.toggle("tier-badge--premium", premium);
   badge.innerHTML = premium
-    ? '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 16 3 6l5 4 4-7 4 7 5-4-2 10H5Zm0 2h14v2H5z"/></svg> Premium'
+    ? '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 16 3 6l5 4 4-7 4 7 5-4-2 10H5Zm0 2h14v2H5z"/></svg> Website Max'
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg> Free';
 
   upgradeCard.hidden = premium;
@@ -790,7 +790,7 @@ async function init() {
   // Handle Stripe Checkout return — webhook may not have landed yet, so poll briefly.
   const qs = new URLSearchParams(location.search);
   if (qs.get("upgraded") === "1") {
-    toast("Activating Premium…", 3000);
+    toast("Activating Website Max…", 3000);
     history.replaceState({}, "", "/dashboard");
     let tries = 0;
     const poll = setInterval(async () => {
@@ -798,7 +798,7 @@ async function init() {
       await refreshProfile();
       if (isPremium() || tries > 10) {
         clearInterval(poll);
-        if (isPremium()) toast("Welcome to Premium ✨", 3200);
+        if (isPremium()) toast("Welcome to Website Max ✨", 3200);
       }
     }, 1500);
   } else if (qs.get("upgrade") === "cancelled") {
