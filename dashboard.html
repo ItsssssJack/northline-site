@@ -614,8 +614,18 @@ async function init() {
   latest = analyses[0] || null;
 
   if (!latest) {
-    show("#emptyView");
     const name = profile?.full_name?.split(" ")[0] || "there";
+    if (profile?.website) {
+      // Auto-kick the first analysis so the user lands on a "live" state
+      show("#resultView");
+      $("#resultHeading").textContent = `Welcome, ${name}.`;
+      $("#resultUrl").textContent = profile.website.replace(/^https?:\/\//, "").replace(/\/$/, "");
+      $("#lastRun").textContent = "Running first analysis…";
+      $("#historyCount").textContent = "0 runs";
+      runAnalysis();
+      return;
+    }
+    show("#emptyView");
     $("#emptyHeading").textContent = `Hey ${name}.`;
     return;
   }

@@ -182,7 +182,7 @@ p{margin:0;color:var(--ink-2)}
   position:relative;
   display:flex;
   flex-direction:column;
-  padding:48px 0 96px;
+  padding:24px 0 32px;
 }
 
 .hero__stack{
@@ -232,7 +232,8 @@ p{margin:0;color:var(--ink-2)}
 .hero__visual{
   position:relative;
   width:100%;
-  margin-top:56px;
+  margin-top:20px;
+  margin-bottom:-32px;
   padding:0 32px;
   display:flex;
   justify-content:center;
@@ -242,13 +243,13 @@ p{margin:0;color:var(--ink-2)}
   display:block;
   width:auto;
   height:auto;
-  max-width:min(72%, 720px);
-  max-height:60vh;
+  max-width:min(78%, 780px);
+  max-height:520px;
   object-fit:contain;
   background:transparent;
   filter:brightness(1.04) contrast(1.02);
-  -webkit-mask-image: radial-gradient(ellipse 72% 84% at center 48%, #000 58%, transparent 95%);
-          mask-image: radial-gradient(ellipse 72% 84% at center 48%, #000 58%, transparent 95%);
+  -webkit-mask-image: radial-gradient(ellipse 78% 82% at center 46%, #000 62%, transparent 95%);
+          mask-image: radial-gradient(ellipse 78% 82% at center 46%, #000 62%, transparent 95%);
 }
 .hero__progress{display:none}
 
@@ -832,7 +833,7 @@ p{margin:0;color:var(--ink-2)}
     <div class="nav__cta">
       <a class="btn btn--ghost" href="#login" aria-label="Client login">Client login</a>
       <a class="nav__signin" href="#" id="navSignin">Log in</a>
-      <a class="btn btn--primary" href="#contact" data-lead-open>Get my audit <span class="arrow" aria-hidden="true">→</span></a>
+      <a class="btn btn--primary" href="#contact" data-lead-open>Roast my site <span class="arrow" aria-hidden="true">→</span></a>
     </div>
   </div>
 </header>
@@ -847,7 +848,7 @@ p{margin:0;color:var(--ink-2)}
         </h1>
         <h2 class="hero__subhead">Design, code, and motion for serious launches.</h2>
         <div class="hero__cta">
-          <a class="btn btn--primary btn--lg" href="#contact" data-lead-open>Find my $10k insight <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn--primary btn--lg" href="#contact" data-lead-open>Roast my site <span class="arrow" aria-hidden="true">→</span></a>
         </div>
         <p class="mono" style="margin-top:14px;font-size:12px;color:var(--ink-4);letter-spacing:0.02em">Free 5-min growth audit from our experts. No call required. Delivered in 48h.</p>
       </div>
@@ -1435,23 +1436,42 @@ p{margin:0;color:var(--ink-2)}
 <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
 <script type="module">
-/* Supabase auth glue:
-   - On successful lead submit, send a magic link with profile data in user_metadata
-   - "Log in" link in nav opens a small inline prompt for an email
-   - On the homepage, if a session already exists, swap Log in for "Open dashboard"
+/* Supabase auth glue (instant-session flow via edge function):
+   - Lead submit succeeds → POST to /bootstrap-session → get token_hash → verifyOtp → redirect /dashboard
+   - "Log in" prompts for email → same path → redirect /dashboard
 */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
 const SUPABASE_URL = "https://fwdzlpqisrbwkyooqvkv.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_YdN1vRjiUvwHr8gLfs37vQ_H2ZJI1gf";
+const BOOTSTRAP_URL = `${SUPABASE_URL}/functions/v1/bootstrap-session`;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false, flowType: "pkce" }
+  auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
 });
 
-const redirectTo = `${location.origin}/auth.html?next=/dashboard`;
+async function bootstrapAndSignIn(payload) {
+  const r = await fetch(BOOTSTRAP_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+    },
+    body: JSON.stringify(payload)
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || !data.ok || !data.token_hash) {
+    throw new Error(data?.error || "Couldn't generate session");
+  }
+  const { error: verifyErr } = await supabase.auth.verifyOtp({
+    token_hash: data.token_hash,
+    type: "email"
+  });
+  if (verifyErr) throw verifyErr;
+}
 
-// If already signed in, show "Open dashboard" instead of Log in
+// On the homepage, if already signed in, swap "Log in" for "Open dashboard"
 (async () => {
   const { data: { session } } = await supabase.auth.getSession();
   const link = document.getElementById("navSignin");
@@ -1460,59 +1480,59 @@ const redirectTo = `${location.origin}/auth.html?next=/dashboard`;
     link.textContent = "Open dashboard";
     link.href = "/dashboard";
   }
-  // Handle ?signin=1 query (sent here after dashboard sign-out)
   if (new URL(location.href).searchParams.get("signin") === "1") {
     setTimeout(() => promptSignin(), 200);
   }
 })();
 
-// Trigger magic link on lead success
+// Trigger instant sign-in after lead form succeeds
 window.addEventListener("northline:lead-success", async (e) => {
   const d = e.detail || {};
   if (!d.email) return;
+
+  // Update the success step copy to a brief "opening dashboard" state
+  const subEl = document.getElementById("leadSuccessSub");
+  const titleEl = document.querySelector('.lead-step[data-step="done"] .lead-success__title');
+  if (titleEl) titleEl.textContent = "Spinning up your dashboard…";
+  if (subEl) subEl.innerHTML = "Logging you in and analysing your site. Hang tight — this takes a second.";
+
   try {
-    const { error } = await supabase.auth.signInWithOtp({
+    await bootstrapAndSignIn({
       email: d.email,
-      options: {
-        emailRedirectTo: redirectTo,
-        data: {
-          full_name: d.name,
-          name: d.name,
-          website: d.website,
-          income_range: d.income_range,
-          biggest_problem: d.biggest_problem
-        }
-      }
+      full_name: d.name,
+      name: d.name,
+      website: d.website,
+      income_range: d.income_range,
+      biggest_problem: d.biggest_problem
     });
-    if (error) console.warn("Magic link send failed:", error.message);
+    setTimeout(() => { location.href = "/dashboard"; }, 1200);
   } catch (err) {
-    console.warn("Magic link error:", err);
+    console.error("Auth bootstrap failed:", err);
+    if (titleEl) titleEl.textContent = "You're in. Teardown incoming.";
+    if (subEl) subEl.innerHTML = `We've got your details — keep an eye on <strong>${d.email}</strong> for your teardown within 48h.`;
   }
 });
 
-// Sign-in prompt for returning users
+// Returning users: nav "Log in" → email prompt → instant sign-in
 async function promptSignin() {
-  const email = window.prompt("Sign in to your dashboard. Enter your email:");
+  const email = window.prompt("Enter your email to open your dashboard:");
   if (!email) return;
-  const e = email.trim();
+  const e = email.trim().toLowerCase();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) {
     alert("Please enter a valid email.");
     return;
   }
-  const { error } = await supabase.auth.signInWithOtp({
-    email: e,
-    options: { emailRedirectTo: redirectTo }
-  });
-  if (error) {
-    alert(`Couldn't send magic link: ${error.message}`);
-    return;
+  try {
+    await bootstrapAndSignIn({ email: e });
+    location.href = "/dashboard";
+  } catch (err) {
+    alert(`Couldn't sign in: ${err.message || err}`);
   }
-  alert(`Magic link sent to ${e}. Check your inbox to sign in.`);
 }
 
 document.getElementById("navSignin")?.addEventListener("click", (e) => {
   const link = e.currentTarget;
-  if (link.getAttribute("href") === "/dashboard") return; // already signed in
+  if (link.getAttribute("href") === "/dashboard") return;
   e.preventDefault();
   promptSignin();
 });
